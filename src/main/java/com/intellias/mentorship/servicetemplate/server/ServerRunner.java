@@ -1,5 +1,6 @@
 package com.intellias.mentorship.servicetemplate.server;
 
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -9,13 +10,17 @@ import org.springframework.stereotype.Component;
 public class ServerRunner implements ApplicationRunner {
 
   @Autowired
-  private EchoServer server;
+  private EchoServer echoServer;
 
   @Override
-  public void run(ApplicationArguments args) throws Exception {
-//    var server = new EchoServer();
-//    server.init();
-    server.startServer();
+  public void run(ApplicationArguments args) throws IOException {
+    echoServer.start();
+//    new Thread(() -> {
+//      try {
+//        echoServer.start();
+//      } catch (IOException e) {
+//        e.printStackTrace();
+//      }
+//    }).start();
   }
-
 }
