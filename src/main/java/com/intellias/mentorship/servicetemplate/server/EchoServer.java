@@ -38,7 +38,6 @@ public class EchoServer {
         while (iterator.hasNext()) {
           SelectionKey key = iterator.next();
           iterator.remove();
-          System.out.println("*********");
           if (key.isAcceptable()) {
             SocketChannel client = server.accept();
             client.configureBlocking(false);
