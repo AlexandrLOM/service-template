@@ -15,12 +15,5 @@ public class ServerRunner implements ApplicationRunner {
   @Override
   public void run(ApplicationArguments args) throws IOException {
     echoServer.start();
-//    new Thread(() -> {
-//      try {
-//        echoServer.start();
-//      } catch (IOException e) {
-//        e.printStackTrace();
-//      }
-//    }).start();
   }
 }
