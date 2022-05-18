@@ -1,11 +1,13 @@
 package com.intellias.mentorship.servicetemplate.client;
 
-import java.io.IOException;
-
 public interface Client {
 
-  byte[] sendMessage(byte[] msg) throws IOException;
+  boolean init(String host, int port);
 
-  void stop() throws IOException;
+  boolean send(byte[] msg);
+
+  byte[] receive();
+
+  void stop();
 
 }
