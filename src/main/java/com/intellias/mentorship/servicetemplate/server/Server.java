@@ -6,7 +6,7 @@ public interface Server {
 
   boolean init(String host, int port, int bufferAllocate);
 
-//  boolean send(Encoder encoder);
+  boolean sendEncoder(Encoder encoder);
 
   boolean send(byte[] bytes);
 

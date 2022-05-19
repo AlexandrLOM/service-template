@@ -9,6 +9,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 public class TcpServer implements Server {
@@ -126,6 +127,10 @@ public class TcpServer implements Server {
       return false;
     }
     return true;
+  }
+
+  public boolean sendEncoder(Encoder encoder){
+    return send(encoder.encode());
   }
 
 }

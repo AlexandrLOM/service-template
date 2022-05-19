@@ -1,7 +1,7 @@
 package com.intellias.mentorship.servicetemplate.server;
 
-public interface Encoder <T>{
+public interface Encoder{
 
-  byte[] encode(T date);
+  byte[] encode();
 
 }
