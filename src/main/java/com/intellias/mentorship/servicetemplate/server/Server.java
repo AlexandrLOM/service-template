@@ -1,20 +1,15 @@
 package com.intellias.mentorship.servicetemplate.server;
 
-import java.nio.channels.SocketChannel;
-
 public interface Server {
 
-  boolean init(String host, int port, int bufferAllocate);
+  void init();
 
-  boolean sendEncoder(Encoder encoder);
+  boolean start();
 
-  boolean send(byte[] bytes);
+  boolean stop();
+
+  boolean send(byte[] data);
 
   byte[] receive();
 
-  boolean registerSocket(int selectionKey);
-
-  SocketChannel registerChannel(int selectionKey);
-
-  boolean close();
 }

@@ -1,7 +1,8 @@
 package com.intellias.mentorship.servicetemplate.server;
 
-public interface Encoder{
+@FunctionalInterface
+public interface Encoder<T> {
 
-  byte[] encode();
+  byte[] encode(T data);
 
 }
