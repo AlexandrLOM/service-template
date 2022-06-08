@@ -1,7 +1,6 @@
 package com.intellias.mentorship.servicetemplate.server.builder;
 
 import com.intellias.mentorship.servicetemplate.server.config.ConfigServer;
-import com.intellias.mentorship.servicetemplate.server.config.StorageServer;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
@@ -9,7 +8,6 @@ public class ConfigServerBuilder implements Builder {
 
   private Selector selector;
   private ServerSocketChannel socketChannel;
-  private StorageServer storage;
   private int startFromAction; // read-1, write-4
   private int allocate;
   private String host;
@@ -25,12 +23,6 @@ public class ConfigServerBuilder implements Builder {
   @Override
   public ConfigServerBuilder setServerSocketChannel(ServerSocketChannel socketChannel) {
     this.socketChannel = socketChannel;
-    return this;
-  }
-
-  @Override
-  public ConfigServerBuilder setStorage(StorageServer storage) {
-    this.storage = storage;
     return this;
   }
 
@@ -62,7 +54,6 @@ public class ConfigServerBuilder implements Builder {
   public ConfigServer build() {
     return new ConfigServer(selector,
         socketChannel,
-        storage,
         startFromAction,
         allocate,
         host,

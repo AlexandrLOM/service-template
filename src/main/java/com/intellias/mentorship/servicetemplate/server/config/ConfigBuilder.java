@@ -18,7 +18,6 @@ public class ConfigBuilder {
       return new ConfigServerBuilder()
           .setSelector(Selector.open())
           .setServerSocketChannel(ServerSocketChannel.open())
-          .setStorage(storageServer)
           .setHost(host)
           .setPort(port)
           .setAllocate(256)

@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,7 +16,7 @@ public class ConfigServer {
 
   private final Selector selector;
   private final ServerSocketChannel serverSocket;
-  private final StorageServer storageServer;
+  private final BlockingQueue<byte[]> queue;
   private final int startFromAction; // read-1, write-4
   private final int allocate;
   private final String host;
@@ -21,14 +24,13 @@ public class ConfigServer {
 
   public ConfigServer(Selector selector,
       ServerSocketChannel serverSocket,
-      StorageServer storageServer,
       int startFromAction,
       int allocate,
       String host,
       int port) {
     this.selector = selector;
     this.serverSocket = serverSocket;
-    this.storageServer = storageServer;
+    this.queue = new LinkedBlockingQueue<>();
     this.startFromAction = startFromAction;
     this.allocate = allocate;
     this.host = host;
@@ -43,10 +45,9 @@ public class ConfigServer {
     return serverSocket;
   }
 
-  public StorageServer getStorage() {
-    return storageServer;
+  public BlockingQueue<byte[]> getQueue() {
+    return queue;
   }
-
   public int getStartFromAction() {
     return startFromAction;
   }

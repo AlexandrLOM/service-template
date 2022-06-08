@@ -10,6 +10,6 @@ public interface Server {
 
   boolean send(byte[] data);
 
-  byte[] receive();
+  void receive(Receiver receiver);
 
 }

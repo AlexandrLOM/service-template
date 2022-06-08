@@ -14,7 +14,7 @@ public class TcpServerMain {
     tcpServer.start();
 
     Thread.sleep(10000L);
-
+    tcpServer.receive((data->System.out.println(data)));
     tcpServer.stop();
 
   }
