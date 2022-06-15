@@ -1,13 +1,11 @@
 package com.intellias.mentorship.servicetemplate.server.config;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
+import com.intellias.mentorship.servicetemplate.server.command.Command;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.concurrent.BlockingDeque;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Level;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 public class ConfigServer {
@@ -16,25 +14,29 @@ public class ConfigServer {
 
   private final Selector selector;
   private final ServerSocketChannel serverSocket;
-  private final BlockingQueue<byte[]> queue;
-  private final int startFromAction; // read-1, write-4
-  private final int allocate;
-  private final String host;
-  private final int port;
+  private BlockingQueue<byte[]> queueForRead;
+  private BlockingQueue<byte[]> queueForWrite;
+  private Map<Integer, Command> commands;
+  private String host;
+  private int port;
+  private ExecutorService executorService;
 
   public ConfigServer(Selector selector,
       ServerSocketChannel serverSocket,
-      int startFromAction,
-      int allocate,
+      BlockingQueue<byte[]> queueForRead,
+      BlockingQueue<byte[]> queueForWrite,
+      Map<Integer, Command> commands,
       String host,
-      int port) {
+      int port,
+      ExecutorService executorService) {
     this.selector = selector;
     this.serverSocket = serverSocket;
-    this.queue = new LinkedBlockingQueue<>();
-    this.startFromAction = startFromAction;
-    this.allocate = allocate;
+    this.queueForRead = queueForRead;
+    this.queueForWrite = queueForWrite;
+    this.commands = commands;
     this.host = host;
     this.port = port;
+    this.executorService = executorService;
   }
 
   public Selector getSelector() {
@@ -45,15 +47,16 @@ public class ConfigServer {
     return serverSocket;
   }
 
-  public BlockingQueue<byte[]> getQueue() {
-    return queue;
-  }
-  public int getStartFromAction() {
-    return startFromAction;
+  public BlockingQueue<byte[]> getQueueForRead() {
+    return queueForRead;
   }
 
-  public int getAllocate() {
-    return allocate;
+  public BlockingQueue<byte[]> getQueueForWrite() {
+    return queueForWrite;
+  }
+
+  public Map<Integer, Command> getCommands() {
+    return commands;
   }
 
   public String getHost() {
@@ -64,18 +67,7 @@ public class ConfigServer {
     return port;
   }
 
-  public void init(String host, int port, int selectionKey) {
-    InetSocketAddress inetSocketAddress = new InetSocketAddress(host, port);
-    try {
-      serverSocket.bind(inetSocketAddress);
-      serverSocket.configureBlocking(false);
-      serverSocket.register(selector, selectionKey);
-      LOG.log(Level.INFO, "init address, host:" + host + ", port:" + port);
-    } catch (IOException e) {
-      LOG.log(Level.CONFIG, "Bad configuration: ".concat(e.getMessage()));
-      throw new RuntimeException(e);
-    }
+  public ExecutorService getExecutorService() {
+    return executorService;
   }
-
-
 }
