@@ -1,10 +1,9 @@
 package com.intellias.mentorship.servicetemplate.server.command;
 
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
+import com.intellias.mentorship.servicetemplate.server.wrapper.SelectionKeyWrap;
 
 public interface Command {
 
-  void execute(SelectionKey key);
+  void execute(SelectionKeyWrap key);
 
 }

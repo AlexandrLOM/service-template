@@ -13,13 +13,15 @@ public class TcpServerMain {
     Server tcpServer = new TcpServer(ConfigBuilder.getBaseConfig("localhost", 8088));
     tcpServer.start();
 
-    tcpServer.send("qewrdsfadfaf".getBytes());
 
-//    while (true) {
-//      Thread.sleep(10000L);
-//      tcpServer.handle((data -> System.out.println(new String(data, UTF_8).trim())));
-////      tcpServer.stop();
-//    }
+
+//    tcpServer.send("qewrdsfadfaf".getBytes());
+
+    while (true) {
+      Thread.sleep(10000L);
+      tcpServer.handle((data -> System.out.println(new String(data, UTF_8).trim())));
+//      tcpServer.stop();
+    }
 
   }
 

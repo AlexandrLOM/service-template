@@ -1,10 +1,9 @@
 package com.intellias.mentorship.servicetemplate.server.command;
 
+import com.intellias.mentorship.servicetemplate.server.wrapper.SelectionKeyWrap;
+import com.intellias.mentorship.servicetemplate.server.wrapper.SocketChannelWrap;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,30 +12,27 @@ public class WriteCommand implements Command {
 
   private static final Logger LOG = Logger.getLogger(WriteCommand.class.getName());
 
-  private Selector selector;
-  private ServerSocketChannel serverSocket;
   private ByteBuffer buffer;
   private BlockingQueue<byte[]> queueForWrite;
+  private List<Command> commands;
 
-  public WriteCommand(Selector selector, ServerSocketChannel serverSocket,
-      ByteBuffer buffer, BlockingQueue<byte[]> queueForWrite) {
+  public WriteCommand(
+      ByteBuffer buffer, BlockingQueue<byte[]> queueForWrite, List<Command> commands) {
     this.buffer = buffer;
     this.queueForWrite = queueForWrite;
-    this.serverSocket = serverSocket;
-    this.selector = selector;
+    this.commands = commands;
   }
 
   @Override
-  public void execute(SelectionKey key) {
+  public void execute(SelectionKeyWrap key) {
     try {
-      SocketChannel socketChannel = (SocketChannel) key.channel();
+      SocketChannelWrap socketChannel = key.channel();
       buffer.put(queueForWrite.take());
       buffer.flip();
       socketChannel.write(buffer);
 
-//      SocketChannel channel = serverSocket.accept();
-      socketChannel.configureBlocking(false);
-      socketChannel.register(selector, SelectionKey.OP_READ);
+      commands.forEach(command -> command.execute(key));
+
     } catch (Exception e) {
       LOG.log(Level.WARNING, e.getMessage());
       throw new RuntimeException(e);

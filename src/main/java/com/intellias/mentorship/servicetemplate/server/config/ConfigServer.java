@@ -1,8 +1,8 @@
 package com.intellias.mentorship.servicetemplate.server.config;
 
 import com.intellias.mentorship.servicetemplate.server.command.Command;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
+import com.intellias.mentorship.servicetemplate.server.wrapper.SelectorWrap;
+import com.intellias.mentorship.servicetemplate.server.wrapper.ServerSocketChannelWrap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -12,8 +12,8 @@ public class ConfigServer {
 
   private static final Logger LOG = Logger.getLogger(ConfigServer.class.getName());
 
-  private final Selector selector;
-  private final ServerSocketChannel serverSocket;
+  private final SelectorWrap selector;
+  private final ServerSocketChannelWrap serverSocket;
   private BlockingQueue<byte[]> queueForRead;
   private BlockingQueue<byte[]> queueForWrite;
   private Map<Integer, Command> commands;
@@ -21,8 +21,8 @@ public class ConfigServer {
   private int port;
   private ExecutorService executorService;
 
-  public ConfigServer(Selector selector,
-      ServerSocketChannel serverSocket,
+  public ConfigServer(SelectorWrap selector,
+      ServerSocketChannelWrap serverSocket,
       BlockingQueue<byte[]> queueForRead,
       BlockingQueue<byte[]> queueForWrite,
       Map<Integer, Command> commands,
@@ -39,11 +39,11 @@ public class ConfigServer {
     this.executorService = executorService;
   }
 
-  public Selector getSelector() {
+  public SelectorWrap getSelector() {
     return selector;
   }
 
-  public ServerSocketChannel getServerSocket() {
+  public ServerSocketChannelWrap getServerSocket() {
     return serverSocket;
   }
 

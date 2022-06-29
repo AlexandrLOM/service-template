@@ -2,11 +2,12 @@ package com.intellias.mentorship.servicetemplate.server;
 
 import com.intellias.mentorship.servicetemplate.server.command.Command;
 import com.intellias.mentorship.servicetemplate.server.config.ConfigServer;
+import com.intellias.mentorship.servicetemplate.server.wrapper.SelectionKeyWrapper;
+import com.intellias.mentorship.servicetemplate.server.wrapper.SelectorWrap;
+import com.intellias.mentorship.servicetemplate.server.wrapper.ServerSocketChannelWrap;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -19,8 +20,8 @@ public class TcpServer implements Server, Runnable {
 
   private static final Logger LOG = Logger.getLogger(TcpServer.class.getName());
 
-  private Selector selector;
-  private ServerSocketChannel serverSocket;
+  private SelectorWrap selector;
+  private ServerSocketChannelWrap serverSocket;
   private BlockingQueue<byte[]> queueForRead;
   private BlockingQueue<byte[]> queueForWrite;
   private InetSocketAddress inetSocketAddress;
@@ -103,7 +104,7 @@ public class TcpServer implements Server, Runnable {
         while (iterator.hasNext()) {
           SelectionKey key = iterator.next();
           Command command = commands.get(key.interestOps());
-          command.execute(key);
+          command.execute(new SelectionKeyWrapper(key));
           iterator.remove();
         }
       }
