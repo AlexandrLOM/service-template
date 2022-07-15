@@ -1,4 +1,4 @@
-package com.intellias.mentorship.servicetemplate.client;
+package com.intellias.mentorship.client.tcp;
 
 public interface Client {
 

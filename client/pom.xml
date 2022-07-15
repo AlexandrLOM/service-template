@@ -9,10 +9,10 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.intellias.mentorship</groupId>
-  <artifactId>service-template</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>service-template</name>
-  <description>service template</description>
+  <artifactId>client-tcp</artifactId>
+  <version>0.0.2-SNAPSHOT</version>
+  <name>client-tcp</name>
+  <description>client tcp</description>
   <properties>
     <java.version>1.8</java.version>
   </properties>
@@ -27,14 +27,6 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-
-<!--    &lt;!&ndash; https://mvnrepository.com/artifact/nio/nio &ndash;&gt;-->
-<!--    <dependency>-->
-<!--      <groupId>nio</groupId>-->
-<!--      <artifactId>nio</artifactId>-->
-<!--      <version>1.0.4</version>-->
-<!--    </dependency>-->
-
   </dependencies>
 
   <build>
@@ -42,6 +34,10 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+
+<!--        <configuration>-->
+<!--          <mainClass>com/intellias/mentorship/client/ClientTcpApplication.java</mainClass>-->
+<!--        </configuration>-->
       </plugin>
     </plugins>
   </build>

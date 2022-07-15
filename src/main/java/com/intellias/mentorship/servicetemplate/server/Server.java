@@ -1,9 +1,21 @@
 package com.intellias.mentorship.servicetemplate.server;
 
-import java.io.IOException;
-
 public interface Server {
 
-  void start() throws IOException;
+  boolean start();
+
+  byte[] handle();
+
+  void setMode(Mode mode);
+
+  boolean stop();
+
+  boolean send(byte[] data);
+
+  void handle(Receiver receiver);
+
+  enum Mode {
+    READE, WRITE, ACCEPT
+  }
 
 }

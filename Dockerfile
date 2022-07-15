@@ -1,3 +1,4 @@
-FROM adoptopenjdk/openjdk11:latest
-ADD target/service-template-0.0.1-SNAPSHOT.jar service-template-0.0.1-SNAPSHOT.jar
-CMD ["java", "-jar", "service-template-0.0.1-SNAPSHOT.jar"]
+FROM anapsix/alpine-java
+MAINTAINER alexL
+COPY target/service-template-0.0.1-SNAPSHOT.jar /home/service-template-0.0.1-SNAPSHOT.jar
+CMD ["java","-jar","/home/service-template-0.0.1-SNAPSHOT.jar"]
