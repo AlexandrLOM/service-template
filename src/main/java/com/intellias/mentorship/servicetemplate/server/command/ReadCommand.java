@@ -1,10 +1,9 @@
 package com.intellias.mentorship.servicetemplate.server.command;
 
-import com.intellias.mentorship.servicetemplate.server.wrapper.SelectionKeyWrap;
-import com.intellias.mentorship.servicetemplate.server.wrapper.SocketChannelWrap;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,30 +14,32 @@ public class ReadCommand implements Command {
 
   private ByteBuffer buffer;
   private BlockingQueue<byte[]> queueForRead;
-  private List<Command> commands;
+  private BlockingQueue<byte[]> queueForWrite;
 
   public ReadCommand(
-      ByteBuffer buffer, BlockingQueue<byte[]> queueForRead,
-      List<Command> commands) {
+      ByteBuffer buffer, BlockingQueue<byte[]> queueForRead,  BlockingQueue<byte[]> queueForWrite) {
     this.buffer = buffer;
     this.queueForRead = queueForRead;
-    this.commands = commands;
+    this.queueForWrite = queueForWrite;
   }
 
   @Override
-  public void execute(SelectionKeyWrap key) {
+  public void execute(SelectionKey key) {
     try {
-      SocketChannelWrap socketChannel = key.channel();
+      SocketChannel socketChannel = (SocketChannel) key.channel();
       int readCount = socketChannel.read(buffer);
       if (readCount > 0) {
         queueForRead.put(Arrays.copyOfRange(buffer.array(), 0, buffer.position()));
         buffer.flip();
         LOG.log(Level.INFO, "Get and put message..");
-
-        commands.forEach(command -> command.execute(key));
+      }
+      if (!queueForWrite.isEmpty()){
+        buffer.flip();
+        ByteBuffer data = ByteBuffer.wrap(queueForWrite.take());
+        socketChannel.write(data);
+        LOG.log(Level.INFO, "Send and put message..");
       }
     } catch (Exception e) {
-      LOG.log(Level.WARNING, e.getMessage());
       throw new RuntimeException(e);
     }
   }

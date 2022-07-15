@@ -1,15 +1,15 @@
 package com.intellias.mentorship.servicetemplate.server;
 
 import com.intellias.mentorship.servicetemplate.server.command.Command;
-import com.intellias.mentorship.servicetemplate.server.config.ConfigServer;
-import com.intellias.mentorship.servicetemplate.server.wrapper.SelectionKeyWrapper;
-import com.intellias.mentorship.servicetemplate.server.wrapper.SelectorWrap;
-import com.intellias.mentorship.servicetemplate.server.wrapper.ServerSocketChannelWrap;
-import java.io.IOException;
+import com.intellias.mentorship.servicetemplate.server.config.TcpServerConfig;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -20,38 +20,39 @@ public class TcpServer implements Server, Runnable {
 
   private static final Logger LOG = Logger.getLogger(TcpServer.class.getName());
 
-  private SelectorWrap selector;
-  private ServerSocketChannelWrap serverSocket;
+  private Selector selector;
+  private ServerSocketChannel serverSocket;
   private BlockingQueue<byte[]> queueForRead;
   private BlockingQueue<byte[]> queueForWrite;
   private InetSocketAddress inetSocketAddress;
   private Map<Integer, Command> commands;
 
   private ExecutorService executorService;
-  private boolean readyToWork = false;
+  private volatile boolean readyToWork = false;
+  private volatile Mode mode;
 
-  public TcpServer(ConfigServer configServer) {
-    selector = configServer.getSelector();
-    serverSocket = configServer.getServerSocket();
-    queueForRead = configServer.getQueueForRead();
-    queueForWrite = configServer.getQueueForWrite();
-    inetSocketAddress = new InetSocketAddress(configServer.getHost(), configServer.getPort());
-    executorService = configServer.getExecutorService();
-    commands = configServer.getCommands();
+  public TcpServer(TcpServerConfig config) {
+    selector = config.getSelector();
+    serverSocket = config.getServerSocket();
+    queueForRead = config.getQueueForRead();
+    queueForWrite = config.getQueueForWrite();
+    inetSocketAddress = new InetSocketAddress(config.getHost(), config.getPort());
+    executorService = config.getExecutorService();
+    commands = config.getCommands();
 
     init();
   }
 
   private void init() {
     try {
+      LOG.log(Level.INFO, "init address, host:" + inetSocketAddress.getHostName()
+          + ", port:" + inetSocketAddress.getPort());
       serverSocket.bind(inetSocketAddress);
       serverSocket.configureBlocking(false);
       serverSocket.register(selector, SelectionKey.OP_ACCEPT);
-      LOG.log(Level.INFO, "init address, host:" + inetSocketAddress.getHostName()
-          + ", port:" + inetSocketAddress.getPort());
+      LOG.log(Level.INFO, "selected mode: ACCEPT");
       readyToWork = true;
-    } catch (IOException e) {
-      LOG.log(Level.CONFIG, "Bad configuration: ".concat(e.getMessage()));
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -75,7 +76,6 @@ public class TcpServer implements Server, Runnable {
       queueForWrite.put(data);
       return true;
     } catch (InterruptedException e) {
-      LOG.log(Level.WARNING, e.getMessage());
       throw new RuntimeException(e);
     }
   }
@@ -104,37 +104,61 @@ public class TcpServer implements Server, Runnable {
         while (iterator.hasNext()) {
           SelectionKey key = iterator.next();
           Command command = commands.get(key.interestOps());
-          command.execute(new SelectionKeyWrapper(key));
+          command.execute(key);
+          if (Objects.nonNull(mode)) {
+            select(key, mode);
+          }
           iterator.remove();
         }
+
       }
       serverSocket.close();
       selector.close();
       LOG.log(Level.INFO, "server stopped..");
     } catch (Exception e) {
-      LOG.log(Level.WARNING, e.getMessage());
       throw new RuntimeException(e);
     }
   }
 
-  private void switchMode() {
+  @Override
+  public byte[] handle() {
     try {
-      int mode = SelectionKey.OP_READ;
-      while (readyToWork) {
-        if (!queueForWrite.isEmpty()) {
-          serverSocket.bind(inetSocketAddress);
-          serverSocket.configureBlocking(false);
-          serverSocket.register(selector, SelectionKey.OP_WRITE);
-
-        } else {
-          serverSocket.bind(inetSocketAddress);
-          serverSocket.configureBlocking(false);
-          serverSocket.register(selector, SelectionKey.OP_READ);
-        }
-      }
-    } catch (Exception e) {
-      LOG.log(Level.WARNING, e.getMessage());
+      return queueForRead.take();
+    } catch (InterruptedException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void setMode(Mode mode) {
+    this.mode = mode;
+  }
+
+  private boolean select(SelectionKey selectionKeyFrom, Mode mode) {
+    try {
+      SocketChannel socketChannel = (SocketChannel) selectionKeyFrom.channel();
+      socketChannel.configureBlocking(false);
+      socketChannel.register(selector, getModeCode(mode));
+      this.mode = null;
+      return true;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public int getModeCode(Mode mode) {
+    switch (mode) {
+      case READE:
+        LOG.log(Level.INFO, "selected mode: {}", Mode.READE);
+        return SelectionKey.OP_READ;
+      case WRITE:
+        LOG.log(Level.INFO, "selected mode: {}", Mode.WRITE);
+        return SelectionKey.OP_WRITE;
+      case ACCEPT:
+        LOG.log(Level.INFO, "selected mode: {}", Mode.ACCEPT);
+        return SelectionKey.OP_ACCEPT;
+      default:
+        throw new IllegalArgumentException();
     }
   }
 }

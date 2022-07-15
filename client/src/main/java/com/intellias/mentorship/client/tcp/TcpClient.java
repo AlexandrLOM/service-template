@@ -1,7 +1,6 @@
-package com.intellias.mentorship.servicetemplate.client;
+package com.intellias.mentorship.client.tcp;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 

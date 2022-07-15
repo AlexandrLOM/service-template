@@ -1,6 +1,5 @@
 package com.intellias.mentorship.servicetemplate.server;
 
-import com.intellias.mentorship.servicetemplate.server.command.ReadCommand;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
